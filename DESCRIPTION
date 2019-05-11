@@ -1,0 +1,21 @@
+Package: mse
+Type: Package
+Title: Multiple Systems Estimation  
+Version: 1.0
+Author: Maarten Cruyff
+Maintainer: Maarten Cruyff <m.cruyff@uu.nl>
+Description: Point and interval estimation of the 
+    population size with log linear
+    models for multiple incomplete registers. 
+License: GPL-2
+Encoding: UTF-8
+Depends:
+   R (>= 3.5.0)
+LazyData: true
+RoxygenNote: 6.1.1
+Imports: 
+    doParallel,
+    ggplot2,
+    iterators,
+    foreach
+
