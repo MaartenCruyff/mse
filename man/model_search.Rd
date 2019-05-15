@@ -50,3 +50,10 @@ individuals and \eqn{p} the number of variables (lists plus covariates), or in a
 levels, and an additional variable called \code{Freq} with the frequencies (including the
 structural zeros).
 }
+\examples{
+# Model search with quadratic effect of year
+
+search <- model_search(x = westeros, lists = 1:4, year = "Y", degree_year = 2)
+
+# result is equivalent for x = as.data.frame(table(westeros)))
+}

@@ -34,6 +34,12 @@
 #'
 #' @importFrom stats coef extractAIC formula glm poisson poly predict step update
 #' @export
+#' @examples
+#' # Model search with quadratic effect of year
+#'
+#' search <- model_search(x = westeros, lists = 1:4, year = "Y", degree_year = 2)
+#'
+#' # result is equivalent for x = as.data.frame(table(westeros)))
 
 
 

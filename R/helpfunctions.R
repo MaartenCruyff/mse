@@ -16,28 +16,28 @@ ci_95 <- function(x){
 }
 
 
-gen_plot <- function(temp, ttl = names(est)[length(est)], gr = NULL){
+gen_plot <- function(temp, ttl , gr = NULL){
 
   limx <- c(min(temp[, 1]), max(temp[, 1]))
   labx <- unique(temp[, 1])
   if(is.null(gr)){
-    p <- ggplot2::ggplot(data.frame(temp), aes(x=Year, y=Nhat))+
+    p <- ggplot2::ggplot(data.frame(temp), aes(x = temp$Year, y = temp$Nhat))+
       geom_line() +
-      geom_ribbon(aes(x=Year, ymin=min95, ymax=max95), linetype=0, alpha=.2) +
+      geom_ribbon(aes(x = temp$Year, ymin = temp$min95, ymax = temp$max95), linetype = 0, alpha = .2) +
       ggtitle(ttl) +
       ylim(0, NA) +
-      scale_x_continuous(name="year", breaks=labx, labels=labx) +
+      scale_x_continuous(name = "year", breaks = labx, labels = labx) +
       theme_light() +
-      theme(legend.title=element_blank())
+      theme(legend.title = element_blank())
   }
 
   if(!is.null(gr)){
-    p <- ggplot2::ggplot(data.frame(temp), aes(x=Year, y=Nhat, group = gr, col = gr))+
+    p <- ggplot2::ggplot(data.frame(temp), aes(x = temp$Year, y = temp$Nhat, group = gr, col = gr))+
       geom_line() +
-      geom_ribbon(aes(x=Year, ymin=min95, ymax=max95, fill = gr), linetype=0, alpha=.2) +
+      geom_ribbon(aes(x = temp$Year, ymin = temp$min95, ymax = temp$max95, fill = gr), linetype = 0, alpha = .2) +
       ggtitle(ttl) +
       ylim(0, NA) +
-      scale_x_continuous(name="year", breaks=labx, labels=labx) +
+      scale_x_continuous(name = "year", breaks = labx, labels = labx) +
       theme_light() +
       theme(legend.title=element_blank())
   }
