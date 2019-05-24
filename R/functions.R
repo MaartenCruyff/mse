@@ -3,12 +3,15 @@
 #' @description \code{model_search} performs a stepwise log-linear model search.
 #' @param x a data frame with the incomplete lists and, if present, covariates.
 #' For the specification of the variables in \code{x}, see Details.
-#' @param lists a vector with the column numbers of \code{x} with the lists.
-#' @param k_max a scalar restricting the \emph{k}-order interaction terms to \code{k-max}.
-#' @param year character string with the name of the variable in \code{x} representing the
-#' years of the observations, if present.
-#' @param degree_year a scalar denoting the polynomial degree of the variable \code{year},
-#' if present.
+#' @param lists a vector with the column numbers of \code{x} corresponding to the lists.
+#' @param max_model a formula specifying the maximal model in the model search. The default
+#' \code{Freq ~ .^2} restricts the maximal model to first-order interactions terms.
+#' @param year character string with the name of the covariate with the
+#' years of the observation. The default \code{NULL} assumes the absence of such a covariate.
+#' @param degree_year if \code{year} is specified, a scalar indicating that polynomial
+#' contrasts should be used for \code{year}. The value 1 creates a linear contrast,
+#' with the first year as reference category
+#' the value 2 quadratic contrasts, etc.. The default \code{NULL} creates dummy variables.
 #' @return Prints a table with the degrees of freedom, deviance, AIC, AICc, BIC and population
 #' size estimates of the fitted models. The AIC, AICc and BIC are scaled in such a way that
 #' there minimum values equal 0. As input argument for the function \code{\link{boot_mse}} a
@@ -23,27 +26,26 @@
 #' \item{obs}{a vector distinguishing between observations and structural zeros in \code{d}.}
 #' \item{lists}{a vector with the column numbers of \code{d} with the lists.}
 #' \item{year}{a scalar indicating the column number of the variable \code{year} in \code{d}.}
-#' @details \code{x} should include at least two lists, and the lists should be coded 1 if the
-#' observation is in that list, and 0 if it is not.
+#' @details The data frame \code{x} can be either in \eqn{n x p} format, where \eqn{n} is the number
+#' of observed individuals and \eqn{p} the number of lists and covariates, or in the form of
+#' a contingency the combinations of the variable levels in \code{x} in the rows, and the lists,
+#' covariates and a variable called \code{Freq} with the corresponding frequencies in the columns.
 #'
-#' \code{x} can be either in an \eqn{n x p} format, where \eqn{n} is the number of observed
-#' individuals and \eqn{p} the number of variables (lists plus covariates), or in an
-#' \eqn{m x p + 1} format, where \eqn{m} is the number of all possible combination of the variable
-#' levels, and an additional variable called \code{Freq} with the frequencies (including the
-#' structural zeros).
+#' The \code{lists} should be coded 1 if the corresponding individual/combination of variable levels
+#' is/are observed in the list, and 0 if not.
+#'
+#' The covariate represented by \code{year} should denote the year in which the observation was made.
 #'
 #' @importFrom stats coef extractAIC formula glm poisson poly predict step update
 #' @export
 #' @examples
-#' # Model search with quadratic effect of year
+#' # Model search with 1st-order interactions term only, and quadratic contrasts for year
 #'
 #' search <- model_search(x = westeros, lists = 1:4, year = "Y", degree_year = 2)
-#'
-#' # result is equivalent for x = as.data.frame(table(westeros)))
 
 
 
-model_search <- function(x, lists = NULL, k_max = 1, year = NULL, degree_year = NULL){
+model_search <- function(x, lists = NULL, max_model = Freq ~ .^2, year = NULL, degree_year = NULL){
 
 
   if(is.null(lists))stop("unspecified argument `lists`")
@@ -72,16 +74,16 @@ model_search <- function(x, lists = NULL, k_max = 1, year = NULL, degree_year = 
       stop("`degree_year` equals/exceeds the number of years")
     }
 
-    x[, paste(year)] <- poly(as.numeric(x[, paste(year)]), degree=degree_year, simple = T)
+    x[, paste(year)] <- poly(as.numeric(x[, paste(year)]), degree = degree_year, simple = T)
   }
 
   n   <- sum(x$Freq)
   obs <- ifelse(rowSums(x[, lists] == "1") == 0, 0, 1)
-  m0  <- glm(Freq ~ ., poisson, data=subset(x, obs==1))
-  mx  <- glm(paste("Freq ~ . ^", k_max + 1), poisson, data=subset(x, obs==1))
+  m0  <- glm(Freq ~ ., poisson, data=subset(x, obs == 1))
+  mx  <- glm(max_model, poisson, data=subset(x, obs == 1))
 
   m_bic <- step(m0, scope = list(lower = formula(m0), upper = formula(mx)), k=log(n), trace=0)
-  m_aic <- step(m_bic, scope = list(lower = formula(m0), upper = formula(mx)), trace=0)
+  m_aic <- step(m_bic, scope = list(lower = formula(m_bic), upper = formula(mx)), trace=0)
   m_nxt <- step(m_aic, scope = list(lower = formula(m_aic), upper = formula(mx)), k=1, trace=0)
 
   B         <- data.frame(m_bic$anova,
@@ -217,7 +219,7 @@ boot_mse <- function(object, modelnr = NULL, rep = 1000, seed = 1){
 
   parallel::stopCluster(cl)
 
-  invisible(
+  return(
     generate_tables(d     = object$d,
                     lists = object$lists,
                     m     = object$fits[[modelnr]],

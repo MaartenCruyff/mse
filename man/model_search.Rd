@@ -4,22 +4,25 @@
 \alias{model_search}
 \title{Stepwise model search}
 \usage{
-model_search(x, lists = NULL, k_max = 1, year = NULL,
+model_search(x, lists = NULL, max_model = Freq ~ .^2, year = NULL,
   degree_year = NULL)
 }
 \arguments{
 \item{x}{a data frame with the incomplete lists and, if present, covariates.
 For the specification of the variables in \code{x}, see Details.}
 
-\item{lists}{a vector with the column numbers of \code{x} with the lists.}
+\item{lists}{a vector with the column numbers of \code{x} corresponding to the lists.}
 
-\item{k_max}{a scalar restricting the \emph{k}-order interaction terms to \code{k-max}.}
+\item{max_model}{a formula specifying the maximal model in the model search. The default
+\code{Freq ~ .^2} restricts the maximal model to first-order interactions terms.}
 
-\item{year}{character string with the name of the variable in \code{x} representing the
-years of the observations, if present.}
+\item{year}{character string with the name of the covariate with the
+years of the observation. The default \code{NULL} assumes the absence of such a covariate.}
 
-\item{degree_year}{a scalar denoting the polynomial degree of the variable \code{year},
-if present.}
+\item{degree_year}{if \code{year} is specified, a scalar indicating that polynomial
+contrasts should be used for \code{year}. The value 1 creates a linear contrast,
+with the first year as reference category
+the value 2 quadratic contrasts, etc.. The default \code{NULL} creates dummy variables.}
 }
 \value{
 Prints a table with the degrees of freedom, deviance, AIC, AICc, BIC and population
@@ -41,19 +44,18 @@ list with the following objects is returned:
 \code{model_search} performs a stepwise log-linear model search.
 }
 \details{
-\code{x} should include at least two lists, and the lists should be coded 1 if the
-observation is in that list, and 0 if it is not.
+The data frame \code{x} can be either in \eqn{n x p} format, where \eqn{n} is the number
+of observed individuals and \eqn{p} the number of lists and covariates, or in the form of
+a contingency the combinations of the variable levels in \code{x} in the rows, and the lists,
+covariates and a variable called \code{Freq} with the corresponding frequencies in the columns.
 
-\code{x} can be either in an \eqn{n x p} format, where \eqn{n} is the number of observed
-individuals and \eqn{p} the number of variables (lists plus covariates), or in an
-\eqn{m x p + 1} format, where \eqn{m} is the number of all possible combination of the variable
-levels, and an additional variable called \code{Freq} with the frequencies (including the
-structural zeros).
+The \code{lists} should be coded 1 if the corresponding individual/combination of variable levels
+is/are observed in the list, and 0 if not.
+
+The covariate represented by \code{year} should denote the year in which the observation was made.
 }
 \examples{
-# Model search with quadratic effect of year
+# Model search with 1st-order interactions term only, and quadratic contrasts for year
 
 search <- model_search(x = westeros, lists = 1:4, year = "Y", degree_year = 2)
-
-# result is equivalent for x = as.data.frame(table(westeros)))
 }

@@ -18,10 +18,12 @@ ci_95 <- function(x){
 
 gen_plot <- function(temp, ttl , gr = NULL){
 
+  temp <- as.data.frame(temp)
+
   limx <- c(min(temp[, 1]), max(temp[, 1]))
   labx <- unique(temp[, 1])
   if(is.null(gr)){
-    p <- ggplot2::ggplot(data.frame(temp), aes(x = temp$Year, y = temp$Nhat))+
+    p <- ggplot2::ggplot(temp, aes(x = temp$Year, y = temp$Nhat))+
       geom_line() +
       geom_ribbon(aes(x = temp$Year, ymin = temp$min95, ymax = temp$max95), linetype = 0, alpha = .2) +
       ggtitle(ttl) +
@@ -32,7 +34,7 @@ gen_plot <- function(temp, ttl , gr = NULL){
   }
 
   if(!is.null(gr)){
-    p <- ggplot2::ggplot(data.frame(temp), aes(x = temp$Year, y = temp$Nhat, group = gr, col = gr))+
+    p <- ggplot2::ggplot(temp, aes(x = temp$Year, y = temp$Nhat, group = gr, col = gr))+
       geom_line() +
       geom_ribbon(aes(x = temp$Year, ymin = temp$min95, ymax = temp$max95, fill = gr), linetype = 0, alpha = .2) +
       ggtitle(ttl) +
