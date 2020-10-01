@@ -55,7 +55,6 @@ model_search <- function(x, lists = NULL, max_model = Freq ~ .^2, year = NULL, d
     nr       <- which(colnames(x)=="Freq")
     x[, -nr] <- lapply(x[, -nr], as.factor)
     lev      <- sapply(x[, -nr], levels)
-    if(nrow(x) != prod(sapply(lev, length)))stop("`x` has incorrect number of rows")
   } else {
     x <- lapply(x, as.factor)
     x <- as.data.frame(table(x))
