@@ -4,31 +4,45 @@
 \alias{model_search}
 \title{Stepwise model search}
 \usage{
-model_search(x, lists = NULL, max_model = Freq ~ .^2, year = NULL,
-  degree_year = NULL)
+model_search(
+  x,
+  lists = NULL,
+  min_model = Freq ~ .,
+  max_model = Freq ~ .^2,
+  start_model = NULL,
+  year = NULL,
+  degree_year = NULL
+)
 }
 \arguments{
-\item{x}{a data frame with the incomplete lists and, if present, covariates.
-For the specification of the variables in \code{x}, see Details.}
+\item{x}{data frame with the lists and (optionally) covariates in the form of a
+contingency table with the variable \code{Freq} containing the observed frequencies,
+or in the form of a data frame with individual observations. See details for the
+specifications of the variables.}
 
-\item{lists}{a vector with the column numbers of \code{x} corresponding to the lists.}
+\item{lists}{numeric vector with the column numbers of \code{x} containing the lists.}
 
-\item{max_model}{a formula specifying the maximal model in the model search. The default
-\code{Freq ~ .^2} restricts the maximal model to first-order interactions terms.}
+\item{min_model}{formula specifying the minimal model considered in the model search.
+Defaults to the main effects models \code{Freq ~ .}.}
 
-\item{year}{character string with the name of the covariate with the
-years of the observation. The default \code{NULL} assumes the absence of such a covariate.}
+\item{max_model}{formula specifying the maximal model considered in the model search.
+Defaults to the first-order interaction model \code{Freq ~ .^2}.}
 
-\item{degree_year}{if \code{year} is specified, a scalar indicating that polynomial
-contrasts should be used for \code{year}. The value 1 creates a linear contrast,
-with the first year as reference category
-the value 2 quadratic contrasts, etc.. The default \code{NULL} creates dummy variables.}
+\item{start_model}{formula specifying the first model in the model search. The model
+should be inside the range of models specified by \code{min_model} and \code{max_model}.
+Defaults to the model specified by \code{min_model}.}
+
+\item{year}{character string with the name of the covariate in \code{x} containing the
+year of the observations. The default \code{NULL} applies when the covariate is absent.}
+
+\item{degree_year}{degree of the orthogonal polynomials (1 = linear, 2 = quadratic,
+3 = cubic, etc.) to be created for \code{year}. The default \code{NULL} creates dummy
+variables.}
 }
 \value{
-Prints a table with the degrees of freedom, deviance, AIC, AICc, BIC and population
-size estimates of the fitted models. The AIC, AICc and BIC are scaled in such a way that
-there minimum values equal 0. As input argument for the function \code{\link{boot_mse}} a
-list with the following objects is returned:
+Displays the degrees of freedom, deviance, AIC, AICc, BIC and population
+size estimates of the models in the search path, and returns a
+list with the following objects:
 \item{models}{the table with the fit statistics of the fitted models.}
 \item{formulas}{the formulas of the fitted models.}
 \item{coefs}{the parameter estimates of the fitted models.}
@@ -41,21 +55,20 @@ list with the following objects is returned:
 \item{year}{a scalar indicating the column number of the variable \code{year} in \code{d}.}
 }
 \description{
-\code{model_search} performs a stepwise log-linear model search.
+\code{model_search} performs a step-wise log-linear model search, and
+provides an overview of the model selection criteria AIC, AICc and BIC and the
+estimated population size for the models in the search path.
 }
 \details{
-The data frame \code{x} can be either in \eqn{n x p} format, where \eqn{n} is the number
-of observed individuals and \eqn{p} the number of lists and covariates, or in the form of
-a contingency the combinations of the variable levels in \code{x} in the rows, and the lists,
-covariates and a variable called \code{Freq} with the corresponding frequencies in the columns.
+The lists in \code{x} should be coded 0 and 1, with 0 denoting absence and 1 presence on the
+list.
 
-The \code{lists} should be coded 1 if the corresponding individual/combination of variable levels
-is/are observed in the list, and 0 if not.
-
-The covariate represented by \code{year} should denote the year in which the observation was made.
+If the observations are made in subsequent, non-overlapping periods of time (e.g. years),
+the covariate \code{year} indicates the period the observation was made. The maximum value for
+\code{degree_year} is one minus the number of distinct periods.
 }
 \examples{
 # Model search with 1st-order interactions term only, and quadratic contrasts for year
 
-search <- model_search(x = westeros, lists = 1:4, year = "Y", degree_year = 2)
+search <- model_search(x = simdat, lists = 1:4, year = "Y", degree_year = 2)
 }

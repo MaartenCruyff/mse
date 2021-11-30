@@ -22,10 +22,12 @@ gen_plot <- function(temp, ttl , gr = NULL){
 
   limx <- c(min(temp[, 1]), max(temp[, 1]))
   labx <- unique(temp[, 1])
-  if(is.null(gr)){
-    p <- ggplot2::ggplot(temp, aes(x = temp$Year, y = temp$Nhat))+
+  if (is.null(gr)){
+    p <- ggplot2::ggplot(temp, aes(x = .data$Year, y = .data$Nhat))+
       geom_line() +
-      geom_ribbon(aes(x = temp$Year, ymin = temp$min95, ymax = temp$max95), linetype = 0, alpha = .2) +
+      ylab("Nhat") +
+      geom_ribbon(aes(x = .data$Year, ymin = .data$min95, ymax = .data$max95),
+                  linetype = 0, alpha = .2) +
       ggtitle(ttl) +
       ylim(0, NA) +
       scale_x_continuous(name = "year", breaks = labx, labels = labx) +
@@ -33,10 +35,12 @@ gen_plot <- function(temp, ttl , gr = NULL){
       theme(legend.title = element_blank())
   }
 
-  if(!is.null(gr)){
-    p <- ggplot2::ggplot(temp, aes(x = temp$Year, y = temp$Nhat, group = gr, col = gr))+
+  if (!is.null(gr)){
+    p <- ggplot2::ggplot(temp, aes(x = .data$Year, y = .data$Nhat, group = gr, col = gr))+
       geom_line() +
-      geom_ribbon(aes(x = temp$Year, ymin = temp$min95, ymax = temp$max95, fill = gr), linetype = 0, alpha = .2) +
+      ylab("Nhat") +
+      geom_ribbon(aes(x = .data$Year, ymin = .data$min95, ymax = .data$max95, fill = gr),
+                  linetype = 0, alpha = .2) +
       ggtitle(ttl) +
       ylim(0, NA) +
       scale_x_continuous(name = "year", breaks = labx, labels = labx) +
@@ -58,7 +62,7 @@ generate_tables <- function(d, lists, m, year, boot_fitted){
   names(est)[[1]]    <- "x"
   rownames(est[[1]]) <- "all"
 
-  if(!is.null(year)){
+  if (!is.null(year)){
 
     plots <- list()
 
@@ -67,7 +71,7 @@ generate_tables <- function(d, lists, m, year, boot_fitted){
                       dimnames = list(levels(d[, yearnr]),
                                       c("Year", "nobs", "Nhat", "min95", "max95")))
 
-    for(j in 1:length(levels(d[, yearnr]))){
+    for (j in 1:length(levels(d[, yearnr]))){
 
       nrs        <- which(d[, yearnr] == levels(d[, yearnr])[j])
       temp[j, ]  <- round(cbind(Year = as.numeric(levels(d[, yearnr])[j]),
@@ -85,16 +89,16 @@ generate_tables <- function(d, lists, m, year, boot_fitted){
 
 
 
-  if(ncol(d) > length(lists) + 1 & is.null(year)){    #no year and only one covariate
+  if (ncol(d) > length(lists) + 1 & is.null(year)){    #no year and only one covariate
 
     covs <- d[, -lists]
     lev  <- lapply(covs[, -ncol(covs), drop = F], levels)
 
-    for(i in 1:length(lev)){
+    for (i in 1:length(lev)){
       temp <- matrix(0, length(lev[[i]]), 4,
                      dimnames = list(lev[[i]],
                                      c("nobs", "Nhat", "min95", "max95")))
-      for(j in 1:length(lev[[i]])){
+      for (j in 1:length(lev[[i]])){
         nrs <- which(covs[, i] == lev[[i]][j])
         temp[j, ]  <- round(cbind(nobs = sum(covs$Freq[nrs]),
                                   Nhat = sum(m[nrs]),
@@ -107,18 +111,18 @@ generate_tables <- function(d, lists, m, year, boot_fitted){
 
   }
 
-  if(ncol(d) > length(lists) + 2 & is.null(year)){     #no year and at least two covariates
+  if (ncol(d) > length(lists) + 2 & is.null(year)){     #no year and at least two covariates
 
 
-      for(i in 1:(length(lev) - 1)){
-        for(j in (i+1):length(lev)){
+      for (i in 1:(length(lev) - 1)){
+        for (j in (i+1):length(lev)){
 
           z         <- xtabs(boot_fitted ~ ., covs[, c(i, j)])
           temp      <- NULL
           tempnames <- NULL
 
-          for(k in 1:length(lev[[i]])){
-            for(l in 1:length(lev[[j]])){
+          for (k in 1:length(lev[[i]])){
+            for (l in 1:length(lev[[j]])){
 
               nrs <- which(covs[, i] == lev[[i]][k] & covs[, j] == lev[[j]][l])
 
@@ -137,7 +141,7 @@ generate_tables <- function(d, lists, m, year, boot_fitted){
       }
     }
 
-  if(ncol(d) > length(lists) + 2 & !is.null(year)){       #year and at leat one covariate
+  if (ncol(d) > length(lists) + 2 & !is.null(year)){       #year and at leat one covariate
 
     covs    <- d[, -lists]
     lev     <- lapply(covs[, -ncol(covs), drop = F], levels)
@@ -150,13 +154,13 @@ generate_tables <- function(d, lists, m, year, boot_fitted){
                                    c("Year", "nobs", "Nhat", "min95", "max95")))
 
 
-    for(i in covnr){
+    for (i in covnr){
 
       temp      <- NULL
       tempnames <- NULL
 
-      for(j in 1:length(lev[[i]])){
-        for(k in 1:length(lev[[yearnr]])){
+      for (j in 1:length(lev[[i]])){
+        for (k in 1:length(lev[[yearnr]])){
           nrs        <- which(covs[, i] == lev[[i]][j]  & covs[, yearnr] == lev[[yearnr]][k])
           vtemp      <- round(cbind(Year = as.numeric(lev[[yearnr]][k]),
                                     nobs = sum(covs$Freq[nrs]),
@@ -174,21 +178,21 @@ generate_tables <- function(d, lists, m, year, boot_fitted){
     }
   }
 
-  if(ncol(d) > length(lists) + 3 & !is.null(year)){       #year and at leat two covariates
+  if (ncol(d) > length(lists) + 3 & !is.null(year)){       #year and at leat two covariates
 
     yearnr  <- which(colnames(covs) == year)
     covnr   <- (1:ncol(covs))[-c(yearnr, ncol(covs))]
 
 
-    for(i in covnr[-length(covnr)]){
-      for(j in (i + 1):length(covnr)){
+    for (i in covnr[-length(covnr)]){
+      for (j in (i + 1):length(covnr)){
 
         temp      <- NULL
         tempnames <- NULL
 
-        for(k in 1:length(lev[[i]])){
-          for(l in 1:length(lev[[j]])){
-            for(y in 1:length(lev[[yearnr]])){
+        for (k in 1:length(lev[[i]])){
+          for (l in 1:length(lev[[j]])){
+            for (y in 1:length(lev[[yearnr]])){
 
               nrs <- which(covs[, i] == lev[[i]][k] & covs[, j] == lev[[j]][l] & covs[, yearnr]  == lev[[yearnr]][y])
 
@@ -210,7 +214,7 @@ generate_tables <- function(d, lists, m, year, boot_fitted){
     }
   }
 
-  if(is.null(year)){
+  if (is.null(year)){
 
     return(est)
 

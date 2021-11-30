@@ -1,4 +1,4 @@
-#' westeros.
+#' simdat.
 #'
 #' A simulated dataset containing MSE data.
 #'
@@ -14,4 +14,4 @@
 #'   \item{X4}{a covariate with 3 levels}
 #'   \item{Y}{a variable denoting the year the observation was made}
 #' }
-"westeros"
+"simdat"

@@ -17,16 +17,17 @@ If left unspecified, the  model with the lowest BIC will be selected.}
 \item{seed}{a scalar to set the random seed.}
 }
 \value{
-A lists with tables and, if the variable \code{year} is specified, with plots.
-\item{tables}{table(s) with the number of observations, the population size estimate with
-the 95\% bootstrap confidence interval. If covariates are present, the tables are presented
-for the levels of the covariate and, with more than one covariae, for the combinations of
-the levels of pairs of covariates. If the variable \code{year} is specified, these
-tables are presented by year.}
-\item{plots}{plots of the population size estimates and their 95\% confidence intervals,
-split out by the levels of the covariates and with the variable \code{year} on the x-axis.
-Only available if the variable \code{year} is specified.}
+A list with tables and, if the variable \code{year} is specified, a list
+with plots.
+\item{tables}{table(s) with the number of observations, the population size estimate
+with the 95\% bootstrap confidence interval. If covariates are present, the results are
+given for the levels of (pairs of) the covariates. If the variable \code{year} is
+specified, these results are presented for the distinct periods of time.}
+\item{plots}{if the covariate \code{year} is present, plots of the population size
+estimates and 95\% confidence intervals are produced that show the estimated trends
+over the distinct periods of time.}
 }
 \description{
-\code{boot_mse} performs a parametric bootstrap for a selected model.
+\code{boot_mse} performs a parametric bootstrap for a selected model,
+and computes 95\% confidence intervals.
 }
